@@ -5,20 +5,86 @@
  */
 package bills;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Mypc
  */
 public class InvoiceForm extends javax.swing.JFrame {
-
+ Connection con;
+ int i=0,k=0;
+ int totalinvoice=0;
+ DefaultTableModel model = new DefaultTableModel(new String[] { "productcode", "product name", "unit price", "quantity", "Total"},0);
+        
+        
+ public void initialize()
+ {
+      try
+ {
+     Class.forName("oracle.jdbc.driver.OracleDriver");
+      con=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","dinesh","dinesh");
+     
+ }
+ catch(Exception e)
+ {
+     
+ }
+ }
+ 
+ 
     /**
      * Creates new form InvoiceForm
      */
-    static int invoicenum=1;
+   
     public InvoiceForm() {
         initComponents();
+       
     }
+    public int getCount() {
 
+        int count = 1;
+        try {
+            if ( !new File("E:\\myCount.txt").exists())
+            {
+                
+                return 1;
+            }
+            else {
+                BufferedReader br = new BufferedReader(new FileReader(new File("E:\\myCount.txt")));
+                String s = br.readLine();
+                count = Integer.parseInt(s);
+                int s1=count;
+                s1+=1;
+                String s2=Integer.toString(s1);
+                
+                br.close();
+              File myFoo = new File("E:\\myCount.txt");
+                FileWriter fooWriter = new FileWriter(myFoo, false); 
+                                                     
+                     fooWriter.write(s2);
+                     fooWriter.close();
+                
+              
+            }                
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -58,13 +124,15 @@ public class InvoiceForm extends javax.swing.JFrame {
         discount = new javax.swing.JTextField();
         jLabel14 = new javax.swing.JLabel();
         total = new javax.swing.JTextField();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
         print = new javax.swing.JButton();
         save = new javax.swing.JButton();
         New = new javax.swing.JButton();
         Exit = new javax.swing.JButton();
         productaddbutton = new javax.swing.JButton();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
+        addaftertotal = new javax.swing.JButton();
+        Submitbutton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(1366, 768));
@@ -83,6 +151,9 @@ public class InvoiceForm extends javax.swing.JFrame {
         });
         getContentPane().add(invoiceno);
         invoiceno.setBounds(150, 50, 240, 30);
+        int invoicenum=getCount();
+        String invoicenum1=Integer.toString(invoicenum);
+        invoiceno.setText(invoicenum1);
 
         jLabel2.setText("Customer Name :");
         getContentPane().add(jLabel2);
@@ -122,14 +193,10 @@ public class InvoiceForm extends javax.swing.JFrame {
                 productcodeActionPerformed(evt);
             }
         });
-        productcode.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                productcodeKeyPressed(evt);
-            }
-        });
         getContentPane().add(productcode);
         productcode.setBounds(140, 310, 110, 30);
 
+        jLabel7.setVisible(false);
         jLabel7.setText("Product Name");
         getContentPane().add(jLabel7);
         jLabel7.setBounds(280, 290, 90, 20);
@@ -139,6 +206,7 @@ public class InvoiceForm extends javax.swing.JFrame {
         getContentPane().add(productname);
         productname.setBounds(280, 310, 230, 30);
 
+        jLabel8.setVisible(false);
         jLabel8.setText("Unit Price");
         getContentPane().add(jLabel8);
         jLabel8.setBounds(560, 290, 90, 20);
@@ -148,6 +216,7 @@ public class InvoiceForm extends javax.swing.JFrame {
         getContentPane().add(unitprice);
         unitprice.setBounds(540, 310, 100, 30);
 
+        jLabel9.setVisible(false);
         jLabel9.setText("Quantity");
         getContentPane().add(jLabel9);
         jLabel9.setBounds(700, 290, 80, 20);
@@ -156,6 +225,7 @@ public class InvoiceForm extends javax.swing.JFrame {
         getContentPane().add(qty);
         qty.setBounds(680, 310, 90, 30);
 
+        jLabel10.setVisible(false);
         jLabel10.setText("Total");
         getContentPane().add(jLabel10);
         jLabel10.setBounds(840, 290, 60, 20);
@@ -206,13 +276,6 @@ public class InvoiceForm extends javax.swing.JFrame {
         getContentPane().add(total);
         total.setBounds(840, 630, 230, 30);
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
-
-        getContentPane().add(jScrollPane2);
-        jScrollPane2.setBounds(140, 360, 770, 140);
-
         print.setText("Print");
         print.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -227,6 +290,11 @@ public class InvoiceForm extends javax.swing.JFrame {
         save.setBounds(720, 690, 120, 30);
 
         New.setText("New");
+        New.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                NewActionPerformed(evt);
+            }
+        });
         getContentPane().add(New);
         New.setBounds(870, 690, 130, 30);
 
@@ -242,6 +310,42 @@ public class InvoiceForm extends javax.swing.JFrame {
         });
         getContentPane().add(productaddbutton);
         productaddbutton.setBounds(940, 310, 130, 30);
+
+        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Product Code", "Product Name", "Unit Price", "Quantity", "Total"
+            }
+        ));
+        jScrollPane2.setViewportView(jTable2);
+
+        getContentPane().add(jScrollPane2);
+        jScrollPane2.setBounds(140, 352, 930, 120);
+
+        addaftertotal.setVisible(false);
+        addaftertotal.setText("ADD");
+        addaftertotal.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addaftertotalActionPerformed(evt);
+            }
+        });
+        getContentPane().add(addaftertotal);
+        addaftertotal.setBounds(940, 310, 130, 30);
+
+        Submitbutton.setText("Submit");
+        Submitbutton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SubmitbuttonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(Submitbutton);
+        Submitbutton.setBounds(910, 480, 130, 23);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -263,6 +367,15 @@ public class InvoiceForm extends javax.swing.JFrame {
     private void AddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddActionPerformed
         // TODO add your handling code here:
         
+        String productcode1=productcode.getText();
+        String productname1=productname.getText();
+        String unitprice1=unitprice.getText();
+        String quantity=qty.getText();
+        String total1=subTotal.getText();
+        
+        jTable2.setModel(model);
+        model.addRow(new Object[] { productcode1, productname1, unitprice1,
+                quantity, total1 });
     }//GEN-LAST:event_AddActionPerformed
 
     private void printActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printActionPerformed
@@ -270,40 +383,76 @@ public class InvoiceForm extends javax.swing.JFrame {
         
     }//GEN-LAST:event_printActionPerformed
 
-    private void productcodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_productcodeKeyPressed
-        // TODO add your handling code here:
-        String str="";
-        str=str+(String)evt.getSource();
-        int id=Integer.parseInt(str);
-        try
-        {
-        Class.forName("oracle.jdbc.Driver.OracleDriver");
-        
-        }
-        catch(Exception e)
-        {
-            
-        }
-        
-    }//GEN-LAST:event_productcodeKeyPressed
-
     private void invoicenoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_invoicenoActionPerformed
         // TODO add your handling code here:
-        String invoicenum1;
-        invoicenum1=Integer.toString(invoicenum);
-        invoiceno.setText(invoicenum1);
+        
+      int j=getCount();
+      
     }//GEN-LAST:event_invoicenoActionPerformed
 
     private void productaddbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_productaddbuttonActionPerformed
         // TODO add your handling code here:
+        productaddbutton.setVisible(false);
         productname.setVisible(true);
         unitprice.setVisible(true);
         qty.setVisible(true);
-        subTotal.setVisible(true);
-        Add.setVisible(true);
+        
+        addaftertotal.setVisible(true);
+     try {
+         
+         initialize();
+         PreparedStatement pst=con.prepareStatement("select * from products where productcode=?");
+         
+        String productcode1=productcode.getText();
+        
+        int productcode2=Integer.parseInt(productcode1);
+        System.out.print(productcode2);
+         pst.setInt(1,productcode2);
+         ResultSet rs=pst.executeQuery();
+         while(rs.next())
+         {
+            
+             String productname1=rs.getString("productname");
+         productname.setText(productname1);
+         int productprice=rs.getInt("unitprice");
+         String productprice1=Integer.toString(productprice);
+         unitprice.setText(productprice1);
+                 }
+     } catch (Exception ex) {
+        System.out.print(ex);
+     }
         
         
     }//GEN-LAST:event_productaddbuttonActionPerformed
+
+    private void NewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewActionPerformed
+        // TODO add your handling code here:
+       
+       this.setVisible(false);
+       InvoiceForm inv1=new InvoiceForm();
+       inv1.setVisible(true);
+       
+    }//GEN-LAST:event_NewActionPerformed
+
+    private void addaftertotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addaftertotalActionPerformed
+        // TODO add your handling code here:
+        String quantity=qty.getText();
+        int quantity1=Integer.parseInt(quantity);
+        String unitprice1=unitprice.getText();
+        int unitprice2=Integer.parseInt(unitprice1);
+        int total=quantity1*unitprice2;
+        String total1=Integer.toString(total);
+        subTotal.setVisible(true);
+        subTotal.setText(total1);
+        Add.setVisible(true);
+        totalinvoice=totalinvoice+total;
+    }//GEN-LAST:event_addaftertotalActionPerformed
+
+    private void SubmitbuttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SubmitbuttonActionPerformed
+        // TODO add your handling code here:
+        String totalinvoice1=Integer.toString(totalinvoice);
+        subtotal1.setText(totalinvoice1);
+    }//GEN-LAST:event_SubmitbuttonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -346,6 +495,8 @@ public class InvoiceForm extends javax.swing.JFrame {
     private javax.swing.JButton Exit;
     private javax.swing.JTextField Mobile;
     private javax.swing.JButton New;
+    private javax.swing.JButton Submitbutton;
+    private javax.swing.JButton addaftertotal;
     private javax.swing.JTextField customername;
     private javax.swing.JTextField discount;
     public javax.swing.JTextField invoiceno;
@@ -365,8 +516,8 @@ public class InvoiceForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JButton print;
     private javax.swing.JButton productaddbutton;
     private javax.swing.JTextField productcode;

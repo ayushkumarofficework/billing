@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import javax.swing.JButton;
 
 /**
@@ -16,11 +17,23 @@ import javax.swing.JButton;
  * @author Mypc
  */
 public class adminpanel extends javax.swing.JFrame {
+    Connection con;
+    Statement stmt;
        static int invoicenum=1;
+       String textareaset="";
     /**
      * Creates new form adminpanel
      */
     public adminpanel() {
+        try
+        {
+            Class.forName("org.sqlite.JDBC");
+             con=DriverManager.getConnection("jdbc:sqlite:test.db");
+        }
+        catch(Exception e)
+        {
+            
+        }
         initComponents();
     }
 
@@ -134,6 +147,11 @@ public class adminpanel extends javax.swing.JFrame {
 
         enteradd.setVisible(false);
         enteradd.setText("OK");
+        enteradd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                enteraddActionPerformed(evt);
+            }
+        });
         getContentPane().add(enteradd);
         enteradd.setBounds(940, 90, 150, 40);
 
@@ -192,13 +210,17 @@ public class adminpanel extends javax.swing.JFrame {
         // TODO add your handling code here:
        cancelaction.setVisible(true);
         productname1.setVisible(true);
-        productcode1.setVisible(true);
+        
         Unitprice1.setVisible(true);
         enteradd.setVisible(true);
         Edit.setEnabled(false);
         Delete.setEnabled(false);
         Record.setEnabled(false);
         Billing.setEnabled(false);
+        
+        
+        
+        
     }//GEN-LAST:event_AddActionPerformed
 
     private void cancelactionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelactionActionPerformed
@@ -242,17 +264,21 @@ public class adminpanel extends javax.swing.JFrame {
         // TODO add your handling code here:
         try
         {
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-            Connection con=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","dinesh","dinesh");
+            
             PreparedStatement pst=con.prepareStatement("select * from products");
             ResultSet rs=pst.executeQuery();
             
             while(rs.next())
             {
-                int productcode=rs.getInt("productcode");
+                
+                
+                int productcode1=rs.getInt("productcode");
+                String productcode2=Integer.toString(productcode1);
                 String productname=rs.getString("productname");
                 int unitprice=rs.getInt("unitprice");
-                jTextArea1.setText(productcode+"      "+productname+"     "+unitprice+"\n");
+                String unitprice1=Integer.toString(unitprice);
+                textareaset=textareaset+productcode2+"                                                                          "+productname+"                                                                     "+unitprice1+"                                                                      "+"\n";
+                jTextArea1.setText(textareaset);
             }
         }
         catch(Exception e)
@@ -260,6 +286,26 @@ public class adminpanel extends javax.swing.JFrame {
             System.out.print(e);
         }
     }//GEN-LAST:event_RecordActionPerformed
+
+    private void enteraddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_enteraddActionPerformed
+        // TODO add your handling code here:
+        String productnameadd=productname1.getText();
+        String unitpriceadd=Unitprice1.getText();
+        int unitpriceadd1=Integer.parseInt(unitpriceadd);
+        try
+        {
+        stmt=con.createStatement();
+        String sql= "INSERT INTO PRODUCTS(PRODUCTNAME,UNITPRICE)" +
+                   "VALUES ('"+productnameadd+"','"+unitpriceadd1+"');";
+        stmt.executeUpdate(sql);
+     
+        stmt.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_enteraddActionPerformed
 
     /**
      * @param args the command line arguments

@@ -9,20 +9,44 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 
 /**
  *
  * @author Mypc
  */
 public class login extends javax.swing.JFrame {
-
+  Connection con;
+  Statement stmt; 
     /**
      * Creates new form NewJFrame
      */
     public login() {
+        try
+        {
+            Class.forName("org.sqlite.JDBC");
+            con=DriverManager.getConnection("jdbc:sqlite:test.db");
+            stmt = con.createStatement();
+      String sql = "CREATE TABLE IF NOT EXISTS CUSTOMER " +
+                   "(USERNAME VARCHAR NOT NULL," +
+                   " PASSWORD VARCHAR NOT NULL)"; 
+      stmt.executeUpdate(sql);
+       String sql1 = "INSERT INTO CUSTOMER (USERNAME,PASSWORD)" +
+                   "VALUES ('dinesh','dinesh1459');"; 
+      stmt.executeUpdate(sql1);
+      stmt.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
         initComponents();
     }
-
+  public void initialize()
+  {
+      
+  }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -86,9 +110,14 @@ public class login extends javax.swing.JFrame {
         {
             String username1=username.getText();
             String password1=password.getText();
-           Class.forName("oracle.jdbc.driver.OracleDriver");
-           Connection con=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","dinesh","dinesh");
-           PreparedStatement pst=con.prepareStatement("SELECT * from customer where username=? and password=?");
+           
+          
+           System.out.println("Opened database successfully");
+           
+           System.out.print("created database");
+          
+          
+          PreparedStatement pst=con.prepareStatement("SELECT * from CUSTOMER where username=? and password=?");
            pst.setString(1,username1);
            pst.setString(2,password1);
            ResultSet rs=pst.executeQuery();
@@ -102,10 +131,11 @@ public class login extends javax.swing.JFrame {
            {
                validate.setText("Invalid username or password");
            }
+          
         }
         catch(Exception e)
         {
-            System.out.print(e);
+            e.printStackTrace();
         }
     }//GEN-LAST:event_LoginActionPerformed
 

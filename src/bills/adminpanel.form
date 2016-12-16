@@ -168,6 +168,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="OK"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="enteraddActionPerformed"/>
+      </Events>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="enteradd.setVisible(false);"/>
       </AuxValues>

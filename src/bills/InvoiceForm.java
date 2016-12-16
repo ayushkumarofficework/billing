@@ -15,6 +15,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
@@ -25,24 +26,13 @@ import javax.swing.table.DefaultTableModel;
  */
 public class InvoiceForm extends javax.swing.JFrame {
  Connection con;
+ Statement stmt;
  int i=0,k=0;
  int totalinvoice=0;
  DefaultTableModel model = new DefaultTableModel(new String[] { "productcode", "product name", "unit price", "quantity", "Total"},0);
         
         
- public void initialize()
- {
-      try
- {
-     Class.forName("oracle.jdbc.driver.OracleDriver");
-      con=DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE","dinesh","dinesh");
-     
- }
- catch(Exception e)
- {
-     
- }
- }
+ 
  
  
     /**
@@ -50,6 +40,23 @@ public class InvoiceForm extends javax.swing.JFrame {
      */
    
     public InvoiceForm() {
+        try
+        {
+            Class.forName("org.sqlite.JDBC");
+            con=DriverManager.getConnection("jdbc:sqlite:test.db");
+            stmt = con.createStatement();
+      String sql = "CREATE TABLE IF NOT EXISTS products " +
+                   "(PRODUCTCODE INT PRIMARY KEY," +
+                   " PRODUCTNAME VARCHAR NOT NULL ,"+
+                   "UNITPRICE INT NOT NULL )" ;                                  ; 
+      stmt.executeUpdate(sql);
+     
+      stmt.close();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
         initComponents();
        
     }
@@ -400,7 +407,7 @@ public class InvoiceForm extends javax.swing.JFrame {
         addaftertotal.setVisible(true);
      try {
          
-         initialize();
+       
          PreparedStatement pst=con.prepareStatement("select * from products where productcode=?");
          
         String productcode1=productcode.getText();

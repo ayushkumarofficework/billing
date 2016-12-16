@@ -32,9 +32,16 @@ public class login extends javax.swing.JFrame {
                    "(USERNAME VARCHAR NOT NULL," +
                    " PASSWORD VARCHAR NOT NULL)"; 
       stmt.executeUpdate(sql);
-       String sql1 = "INSERT INTO CUSTOMER (USERNAME,PASSWORD)" +
+       PreparedStatement pst=con.prepareStatement("SELECT * from CUSTOMER where username=? and password=?");
+           pst.setString(1,"dinesh");
+           pst.setString(2,"dinesh1459");
+           ResultSet rs=pst.executeQuery();
+           if(!rs.next())
+           {
+               String sql1 = "INSERT INTO CUSTOMER (USERNAME,PASSWORD)" +
                    "VALUES ('dinesh','dinesh1459');"; 
-      stmt.executeUpdate(sql1);
+                 stmt.executeUpdate(sql1);
+           }
       stmt.close();
         }
         catch(Exception e)
